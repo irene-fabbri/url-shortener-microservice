@@ -3,6 +3,7 @@ const cors = require('cors');
 const input_validation = require('./input_validation');
 const app = express ();
 
+app.use(express.json());
 app.use(cors());
 
 // For the sake, of simplicity I am not using a database for this exercise
@@ -27,8 +28,7 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/shorturl', input_validation, (req,res) => {
-  
-  const original_url = req.body.attributes.url;
+  const original_url = req.body.data.attributes.url;
   const short_url = id
   // Add to URList
   URList.push({
@@ -66,7 +66,7 @@ app.get('/api/shorturl/:url?',  (req,res) => {
   const short_url = req.params.url;
   
   // Look if URL in urlList
-  let URLObj = URList.find(url => url['short_url'] === parseInt(short_url))
+  let URLObj = URList.find(url => url['short_url'] === short_url)
   if(URLObj === undefined) {
     return res.status(400).send({
       "errors": [

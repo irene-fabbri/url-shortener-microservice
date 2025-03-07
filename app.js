@@ -27,6 +27,23 @@ app.use((req, res, next) => {
   next();
 });
 
+// Handle invalid JSON
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError) {
+    return res.status(400).send({
+      "errors": [
+        {
+          "status": "400",
+          "code": "invalid-JSON",          
+          "title": "invalid JSON",
+          "detail": "The paylod MUST be valid JSON"
+        }
+      ]
+    });
+  }
+  next(err);
+});
+
 app.post('/api/shorturl', input_validation, (req,res) => {
   const original_url = req.body.data.attributes.url;
   const short_url = id

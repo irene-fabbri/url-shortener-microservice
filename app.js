@@ -24,11 +24,17 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/api/shorturl',  (req,res) => {
+app.post('/api/shorturl', (req,res) => {
   // TODO
   // Check if valid URL
-  const pattern = /^https?:\/\/(?:www\./)?[a-zA-Z0-9]{2,}(?:\.[a-zA-Z0-9]{2,})+(\/[a-zA-Z0-9]{2,})*\/?/;
+  const pattern = /^https?:\/\/(?:www\.)?[a-zA-Z0-9]{2,}(?:\.[a-zA-Z0-9]{2,})+(\/[a-zA-Z0-9]{2,})*\/?/;
 
+  const original_url = req.body.data.attributes.url;
+  
+  if (! pattern.test(original_url)) {
+    //TODO error
+  }
+  
   // Check if already in urlList
   // If not, add to list
 

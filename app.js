@@ -6,6 +6,7 @@ app.use(cors());
 
 // For the sake, of simplicity I am not using a database for this exercise
 let URList = [];
+let id = 1;
 
 // Allow for GET or POST method
 app.use((req, res, next) => {
@@ -25,20 +26,32 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/shorturl', (req,res) => {
-  // TODO
+  // Check if URL in req.body
   // Check if valid URL
   const pattern = /^https?:\/\/(?:www\.)?[a-zA-Z0-9]{2,}(?:\.[a-zA-Z0-9]{2,})+(\/[a-zA-Z0-9]{2,})*\/?/;
 
   const original_url = req.body.data.attributes.url;
   
   if (! pattern.test(original_url)) {
-    //TODO error
+    return res.status(400).send({
+      "errors": [
+        {
+          "status": "400",
+          "code": "invalid-url",          
+          "title": "Invalid URL",
+          "detail": "MUST provide valid URL"
+        }
+      ]
+    });
   }
-  
-  // Check if already in urlList
-  // If not, add to list
+  // Add to urlList
+  URList.push({
+    "original_url": `${original_url}`,
+    "short_url": `${id}`
+  });
+  id += 1;
 
-  // return json with original and shorten url
+  // return json with original and short url
   res.status(200).json({
     "data": {
         "type": "short-url",
@@ -47,15 +60,42 @@ app.post('/api/shorturl', (req,res) => {
             "short_url": `${short_url}`
         }
       }
-  });
+    });
 });
 
 app.get('/api/shorturl/:url?',  (req,res) => {
-  // TODO
+  if( !req.params.url ){
+    return res.status(400).send({
+      "errors": [
+        {
+          "status": "400",
+          "code": "missing-short-url",          
+          "title": "Missing short URL",
+          "detail": "MUST provide a short URL"
+        }
+      ]
+    });
+  }
 
+  const short_url = req.params.url;
+  
   // Look if URL in urlList
-
-  // Redirect to page
+  let URLObj = URList.find(url => url['short_url'] === short_url)
+  if(URLObj === undefined) {
+    return res.status(400).send({
+      "errors": [
+        {
+          "status": "400",
+          "code": "invalid-short-url",          
+          "title": "Invalid short URL",
+          "detail": "The short_url provided is not on the URL list"
+        }
+      ]
+    });
+  }
+  
+  // If found, redirect to page
+  res.redirect(302, URLObj['original_url']);
 });
 
 // Centralized error handling middleware

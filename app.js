@@ -1,5 +1,6 @@
 const express = require(`express`);
-const cors = require('cors')
+const cors = require('cors');
+const input_validation = require('./input_validation');
 const app = express ();
 
 app.use(cors());
@@ -10,7 +11,7 @@ let id = 1;
 
 // Allow for GET or POST method
 app.use((req, res, next) => {
-  if (not ['GET', 'POST'].includes(req.method)) {
+  if (!['GET', 'POST'].includes(req.method)) {
     return res.status(405).send({
       "errors": [
           {
@@ -25,29 +26,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/api/shorturl', (req,res) => {
-  // Check if URL in req.body
-  // Check if valid URL
-  const pattern = /^https?:\/\/(?:www\.)?[a-zA-Z0-9]{2,}(?:\.[a-zA-Z0-9]{2,})+(\/[a-zA-Z0-9]{2,})*\/?/;
-
-  const original_url = req.body.data.attributes.url;
+app.post('/api/shorturl', input_validation, (req,res) => {
   
-  if (! pattern.test(original_url)) {
-    return res.status(400).send({
-      "errors": [
-        {
-          "status": "400",
-          "code": "invalid-url",          
-          "title": "Invalid URL",
-          "detail": "MUST provide valid URL"
-        }
-      ]
-    });
-  }
-  // Add to urlList
+  const original_url = req.body.attributes.url;
+  const short_url = id
+  // Add to URList
   URList.push({
     "original_url": `${original_url}`,
-    "short_url": `${id}`
+    "short_url": `${short_url}`
   });
   id += 1;
 
@@ -80,7 +66,7 @@ app.get('/api/shorturl/:url?',  (req,res) => {
   const short_url = req.params.url;
   
   // Look if URL in urlList
-  let URLObj = URList.find(url => url['short_url'] === short_url)
+  let URLObj = URList.find(url => url['short_url'] === parseInt(short_url))
   if(URLObj === undefined) {
     return res.status(400).send({
       "errors": [
@@ -95,7 +81,7 @@ app.get('/api/shorturl/:url?',  (req,res) => {
   }
   
   // If found, redirect to page
-  res.redirect(302, URLObj['original_url']);
+  res.redirect(302, URLObj.original_url);
 });
 
 // Centralized error handling middleware

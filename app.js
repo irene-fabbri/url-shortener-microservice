@@ -4,6 +4,7 @@ const input_validation = require('./input_validation');
 const app = express ();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 app.use(cors());
 
 // For the sake, of simplicity I am not using a database for this exercise

@@ -85,7 +85,7 @@ describe('Missing path', () => {
     });
 });
 
-describe('Input validation', () => {
+describe('POST: Input validation', () => {
     it('should give 200 for valid request', async () => {
         const res = await request(app)
         .post('/api/shorturl/')
@@ -95,7 +95,7 @@ describe('Input validation', () => {
                 "type": "url",
                 "attributes": 
                     {
-                        "url": "https://youtube.com"
+                        "url": "https://tomorrowdevs.com"
                     }
                 }
         });
@@ -156,4 +156,32 @@ describe('Input validation', () => {
         });
         expect(res.statusCode).toEqual(400);
       });
+});
+
+describe('GET: Input validation', () => {
+    it('should give 302 for valid request (1) and redirect to www.youtube.com', async () => {
+        const res = await request(app)
+        .get('/api/shorturl/1')
+        expect(res.statusCode).toEqual(302);
+        expect(res.headers.location).toEqual("https://youtube.com");
+    });
+
+    it('should give 302 for valid request (2) and redirect to https://tomorrowdevs.com', async () => {
+        const res = await request(app)
+        .get('/api/shorturl/2')
+        expect(res.statusCode).toEqual(302);
+        expect(res.headers.location).toEqual("https://tomorrowdevs.com");
+    });
+
+    it('should give 400 for missing url', async () => {
+      const res = await request(app)
+        .get('/api/shorturl')
+      expect(res.statusCode).toEqual(400);
+    });
+
+    it('should give 400 for invalid short url', async () => {
+        const res = await request(app)
+        .get('/api/shorturl/31')
+        expect(res.statusCode).toEqual(400);
+    });
 });
